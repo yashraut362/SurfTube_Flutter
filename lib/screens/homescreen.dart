@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:preload_page_view/preload_page_view.dart';
 import 'package:surftube/constants/data_json.dart';
 import 'package:surftube/services/surfvideoplayer.dart';
-
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -30,13 +30,21 @@ class _HomeScreenState extends State<HomeScreen>
       quarterTurns: 1,
       child: TabBarView(
         controller: _tabController,
-        children: List.generate(items.length, (index) {
-          return RotatedBox(
-              quarterTurns: -1,
-              child: SurfvideoPlayer(
-                videoUrl: items[index]['videoUrl'],
-              ));
-        }),
+        children: List.generate(
+          items.length,
+          (index) {
+            return RotatedBox(
+                quarterTurns: -1,
+                child: PreloadPageView(
+                  preloadPagesCount: 3,
+                  children: [
+                    SurfvideoPlayer(
+                      videoUrl: items[index]['videoUrl'],
+                    ),
+                  ],
+                ));
+          },
+        ),
       ),
     );
   }

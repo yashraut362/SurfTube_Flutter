@@ -28,23 +28,24 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     return RotatedBox(
       quarterTurns: 1,
-      child: TabBarView(
-        controller: _tabController,
-        children: List.generate(
-          items.length,
-          (index) {
-            return RotatedBox(
-                quarterTurns: -1,
-                child: PreloadPageView(
-                  preloadPagesCount: 3,
-                  children: [
-                    SurfvideoPlayer(
-                      videoUrl: items[index]['videoUrl'],
-                    ),
-                  ],
-                ));
-          },
-        ),
+      child: PreloadPageView(
+        preloadPagesCount: 3,
+        children: [
+          TabBarView(
+            controller: _tabController,
+            children: List.generate(
+              items.length,
+              (index) {
+                return RotatedBox(
+                  quarterTurns: -1,
+                  child: SurfvideoPlayer(
+                    videoUrl: items[index]['videoUrl'],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

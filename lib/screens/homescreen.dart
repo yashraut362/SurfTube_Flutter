@@ -26,10 +26,11 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    print(items.length);
     return RotatedBox(
       quarterTurns: 1,
       child: PreloadPageView(
-        preloadPagesCount: 3,
+        preloadPagesCount: items.length,
         children: [
           TabBarView(
             controller: _tabController,

@@ -15,19 +15,20 @@ class _SurfvideoPlayerState extends State<SurfvideoPlayer> {
   void initState() {
     super.initState();
     _controller = YoutubePlayerController(
-        initialVideoId:
-            YoutubePlayer.convertUrlToId(widget.videoUrl.toString()),
-        flags: const YoutubePlayerFlags(
-          hideControls: true,
-          hideThumbnail: true,
-          mute: false,
-          autoPlay: true,
-          disableDragSeek: false,
-          loop: true,
-          isLive: false,
-          forceHD: false,
-          enableCaption: false,
-        ));
+      initialVideoId: YoutubePlayer.convertUrlToId(widget.videoUrl.toString()),
+      flags: const YoutubePlayerFlags(
+        //made changes in package toggling this wont work
+        hideControls: true,
+        hideThumbnail: false,
+        mute: false,
+        autoPlay: true,
+        disableDragSeek: false,
+        loop: true,
+        isLive: false,
+        forceHD: false,
+        enableCaption: false,
+      ),
+    );
   }
 
   @override

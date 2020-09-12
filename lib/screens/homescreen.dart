@@ -15,7 +15,6 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-
     _tabController = TabController(length: items.length, vsync: this);
   }
 
@@ -26,27 +25,27 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    print(items.length);
+  //  print(items.length);
     return RotatedBox(
       quarterTurns: 1,
-      child: PreloadPageView(
-        preloadPagesCount: items.length,
-        children: [
-          TabBarView(
-            controller: _tabController,
-            children: List.generate(
-              items.length,
-              (index) {
-                return RotatedBox(
+      child: TabBarView(
+        controller: _tabController,
+        children: List.generate(
+          items.length,
+          (index) {
+            return PreloadPageView(
+              preloadPagesCount: items.length,
+              children: [
+                RotatedBox(
                   quarterTurns: -1,
                   child: SurfvideoPlayer(
                     videoUrl: items[index]['videoUrl'],
                   ),
-                );
-              },
-            ),
-          ),
-        ],
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

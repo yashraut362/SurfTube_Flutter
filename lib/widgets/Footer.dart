@@ -33,11 +33,11 @@ class _FooterState extends State<Footer> {
             ],
           ),
           InkWell(
-            onTap: (){},
+            onTap: () {},
             child: Column(
               children: <Widget>[
                 Icon(
-                  Icons.search,
+                  Icons.switch_video,
                   color: Colors.white,
                 ),
                 SizedBox(

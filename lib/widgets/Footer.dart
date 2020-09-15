@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:surftube/screens/recorderScreen.dart';
 
 class Footer extends StatefulWidget {
   @override
@@ -33,7 +34,12 @@ class _FooterState extends State<Footer> {
             ],
           ),
           InkWell(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => RecorderScreen()),
+              );
+            },
             child: Column(
               children: <Widget>[
                 Icon(
@@ -44,7 +50,7 @@ class _FooterState extends State<Footer> {
                   height: 5,
                 ),
                 Text(
-                  'Discover',
+                  'Record',
                   style: TextStyle(color: Colors.white),
                 ),
               ],

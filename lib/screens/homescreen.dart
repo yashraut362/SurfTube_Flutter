@@ -10,7 +10,7 @@ class HomeScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.black,
-          title: Text('SurfTube'),
+          title: Center(child: Text('SurfTube')),
         ),
         bottomNavigationBar: Container(
           color: Colors.black,

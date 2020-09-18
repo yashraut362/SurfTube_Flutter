@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:surftube/screens/homescreen.dart';
-
-import 'package:surftube/widgets/Footer.dart';
+import 'package:surftube/screens/Homescreen.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,10 +11,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        bottomNavigationBar: Footer(),
-        body: HomeScreen(),
-      ),
+      home: HomeScreen(),
     );
   }
 }

@@ -1,50 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:preload_page_view/preload_page_view.dart';
-import 'package:surftube/constants/data_json.dart';
-import 'package:surftube/services/surfvideoplayer.dart';
+import 'package:surftube/screens/RecordScreen.dart';
+import 'package:surftube/screens/WatchVideo.dart';
 
-class HomeScreen extends StatefulWidget {
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
-  TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: items.length, vsync: this);
-  }
-
-  void dispose() {
-    super.dispose();
-    _tabController.dispose();
-  }
-
+class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-  //  print(items.length);
-    return RotatedBox(
-      quarterTurns: 1,
-      child: TabBarView(
-        controller: _tabController,
-        children: List.generate(
-          items.length,
-          (index) {
-            return PreloadPageView(
-              preloadPagesCount: items.length,
-              children: [
-                RotatedBox(
-                  quarterTurns: -1,
-                  child: SurfvideoPlayer(
-                    videoUrl: items[index]['videoUrl'],
-                  ),
-                ),
-              ],
-            );
-          },
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          title: Text('SurfTube'),
+        ),
+        bottomNavigationBar: Container(
+          color: Colors.black,
+          child: TabBar(
+            labelColor: Colors.white,
+            indicatorColor: Colors.white,
+            tabs: [
+              Tab(icon: Icon(Icons.camera), text: "RecordVideo"),
+              Tab(icon: Icon(Icons.video_label), text: "WatchVideo")
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [RecordScreen(), WatchVideo()],
         ),
       ),
     );

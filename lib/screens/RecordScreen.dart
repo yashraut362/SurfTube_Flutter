@@ -18,6 +18,7 @@ class _RecordScreenState extends State<RecordScreen> {
   bool _isRecording = false;
   String _filePath;
   String _toastPath;
+  String _playpath;
   final _flutterVideoCompress = FlutterVideoCompress();
 
   @override
@@ -50,6 +51,9 @@ class _RecordScreenState extends State<RecordScreen> {
             _onStop();
           },
         );
+      } else if (_flutterVideoCompress.isCompressing == true) {
+        return Text(
+            "Please wait Your Video is Compressing ! You will be able to Play video after Compressing");
       } else {
         return Text("Press start button to start recording");
       }
@@ -89,10 +93,10 @@ class _RecordScreenState extends State<RecordScreen> {
     );
   }
 
-  void _onPlay() => OpenFile.open(_filePath);
+  void _onPlay() => OpenFile.open(_playpath);
 
   void showToast() {
-    Toast.show(_toastPath, context, duration: 8, gravity: Toast.BOTTOM);
+    Toast.show(_toastPath, context, duration: 8, gravity: Toast.CENTER);
   }
 
   Future<void> _videocompress() async {
@@ -105,6 +109,7 @@ class _RecordScreenState extends State<RecordScreen> {
     String storagepath = info.path;
     setState(() {
       _toastPath = "Your Video is stored at $storagepath";
+      _playpath = storagepath;
     });
     showToast();
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter_video_compress/flutter_video_compress.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:timer_count_down/timer_count_down.dart';
@@ -17,6 +18,7 @@ class _RecordScreenState extends State<RecordScreen> {
   bool _isRecording = false;
   String _filePath;
   String _toastPath;
+  final _flutterVideoCompress = FlutterVideoCompress();
 
   @override
   void initState() {
@@ -67,22 +69,18 @@ class _RecordScreenState extends State<RecordScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
-        // Ícono para cambiar la cámara
         IconButton(
           icon: Icon(_getCameraIcon(_cameras[_cameraIndex].lensDirection)),
           onPressed: _onSwitchCamera,
         ),
-
         IconButton(
           icon: Icon(Icons.radio_button_checked),
           onPressed: _isRecording ? null : _onRecord,
         ),
-
         IconButton(
           icon: Icon(Icons.stop),
           onPressed: _isRecording ? _onStop : null,
         ),
-
         IconButton(
           icon: Icon(Icons.play_arrow),
           onPressed: _isRecording ? null : _onPlay,
@@ -97,10 +95,24 @@ class _RecordScreenState extends State<RecordScreen> {
     Toast.show(_toastPath, context, duration: 8, gravity: Toast.BOTTOM);
   }
 
+  Future<void> _videocompress() async {
+    final info = await _flutterVideoCompress.compressVideo(
+      _filePath,
+      quality:
+          VideoQuality.MediumQuality, // default(VideoQuality.DefaultQuality)
+      deleteOrigin: true, // default(false)
+    );
+    String storagepath = info.path;
+    setState(() {
+      _toastPath = "Your Video is stored at $storagepath";
+    });
+    showToast();
+  }
+
   Future<void> _onStop() async {
     await _controller.stopVideoRecording();
     setState(() => _isRecording = false);
-    showToast();
+    _videocompress();
   }
 
   Future<void> _onRecord() async {
@@ -110,7 +122,6 @@ class _RecordScreenState extends State<RecordScreen> {
     _controller.startVideoRecording(_filePath);
     setState(() {
       _isRecording = true;
-      _toastPath = "Your Video is Stored at :- $_filePath";
     });
   }
 

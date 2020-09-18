@@ -35,6 +35,7 @@ dependencies:
   open_file: ^3.0.1
   toast: ^0.1.5
   timer_count_down: ^1.0.4+1
+  flutter_video_compress: ^0.3.7+8
 
 dev_dependencies:
   flutter_test:

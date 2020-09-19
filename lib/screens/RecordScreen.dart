@@ -3,6 +3,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter_video_compress/flutter_video_compress.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:surftube/screens/AudioSelctor.dart';
 import 'package:timer_count_down/timer_count_down.dart';
 import 'package:toast/toast.dart';
 
@@ -20,6 +21,7 @@ class _RecordScreenState extends State<RecordScreen> {
   String _toastPath;
   String _playpath;
   final _flutterVideoCompress = FlutterVideoCompress();
+  bool _audioselected = false;
 
   @override
   void initState() {
@@ -170,9 +172,23 @@ class _RecordScreenState extends State<RecordScreen> {
       backgroundColor: Colors.black,
       //  appBar: AppBar(title: Text('SurfVideo Recorder')),
       body: Column(children: [
-        Expanded(child: Center(child: _buildCamera())),
+        Expanded(
+          child: Center(
+            child: _buildCamera(),
+          ),
+        ),
         _buildControls(),
         _counter(),
+        RaisedButton.icon(
+            // Within the `FirstRoute` widget
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AudioSelector()),
+              );
+            },
+            icon: Icon(Icons.audiotrack),
+            label: Text('Select Audio'))
       ]),
     );
   }

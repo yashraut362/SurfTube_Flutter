@@ -36,7 +36,8 @@ class _RecordScreenState extends State<RecordScreen> {
 
   _initCamera(CameraDescription camera) async {
     if (_controller != null) await _controller.dispose();
-    _controller = CameraController(camera, ResolutionPreset.medium);
+    _controller =
+        CameraController(camera, ResolutionPreset.high, enableAudio: false);
     _controller.addListener(() => this.setState(() {}));
     _controller.initialize();
   }
@@ -46,16 +47,24 @@ class _RecordScreenState extends State<RecordScreen> {
       if (_isRecording == true) {
         return Countdown(
           seconds: 30,
-          build: (BuildContext context, double time) => Text(time.toString()),
+          build: (BuildContext context, double time) => Text(
+            time.toString(),
+            style: TextStyle(color: Colors.white),
+          ),
           onFinished: () {
             _onStop();
           },
         );
       } else if (_flutterVideoCompress.isCompressing == true) {
         return Text(
-            "Please wait Your Video is Compressing ! You will be able to Play video after Compressing");
+          "Please wait Your Video is Compressing ! You will be able to Play video after Compressing",
+          style: TextStyle(color: Colors.white),
+        );
       } else {
-        return Text("Press start button to start recording");
+        return Text(
+          "Press start button to start recording",
+          style: TextStyle(color: Colors.white),
+        );
       }
     }));
   }
@@ -74,19 +83,31 @@ class _RecordScreenState extends State<RecordScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         IconButton(
-          icon: Icon(_getCameraIcon(_cameras[_cameraIndex].lensDirection)),
+          icon: Icon(
+            _getCameraIcon(_cameras[_cameraIndex].lensDirection),
+            color: Colors.white,
+          ),
           onPressed: _onSwitchCamera,
         ),
         IconButton(
-          icon: Icon(Icons.radio_button_checked),
+          icon: Icon(
+            Icons.radio_button_checked,
+            color: Colors.white,
+          ),
           onPressed: _isRecording ? null : _onRecord,
         ),
         IconButton(
-          icon: Icon(Icons.stop),
+          icon: Icon(
+            Icons.stop,
+            color: Colors.white,
+          ),
           onPressed: _isRecording ? _onStop : null,
         ),
         IconButton(
-          icon: Icon(Icons.play_arrow),
+          icon: Icon(
+            Icons.play_arrow,
+            color: Colors.white,
+          ),
           onPressed: _isRecording ? null : _onPlay,
         ),
       ],
@@ -108,7 +129,8 @@ class _RecordScreenState extends State<RecordScreen> {
     );
     String storagepath = info.path;
     setState(() {
-      _toastPath = "Your Video is stored at $storagepath";
+      _toastPath =
+          "Your Video is stored at $storagepath You can play this video after This Toast";
       _playpath = storagepath;
     });
     showToast();
@@ -145,9 +167,10 @@ class _RecordScreenState extends State<RecordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       //  appBar: AppBar(title: Text('SurfVideo Recorder')),
       body: Column(children: [
-        Container(height: 600, child: Center(child: _buildCamera())),
+        Expanded(child: Center(child: _buildCamera())),
         _buildControls(),
         _counter(),
       ]),

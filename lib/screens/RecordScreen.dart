@@ -1,3 +1,5 @@
+import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_video_compress/flutter_video_compress.dart';
@@ -21,7 +23,8 @@ class _RecordScreenState extends State<RecordScreen> {
   String _toastPath;
   String _playpath;
   final _flutterVideoCompress = FlutterVideoCompress();
-  bool _audioselected = false;
+  String _audio = "No Audio selected";
+  AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
 
   @override
   void initState() {
@@ -36,10 +39,11 @@ class _RecordScreenState extends State<RecordScreen> {
     });
   }
 
+//turn this enableaudio flag to false on deployment
   _initCamera(CameraDescription camera) async {
     if (_controller != null) await _controller.dispose();
     _controller =
-        CameraController(camera, ResolutionPreset.high, enableAudio: false);
+        CameraController(camera, ResolutionPreset.high, enableAudio: true);
     _controller.addListener(() => this.setState(() {}));
     _controller.initialize();
   }
@@ -64,7 +68,7 @@ class _RecordScreenState extends State<RecordScreen> {
         );
       } else {
         return Text(
-          "Press start button to start recording",
+          "Press start button to start recording $_audio",
           style: TextStyle(color: Colors.white),
         );
       }
@@ -116,6 +120,19 @@ class _RecordScreenState extends State<RecordScreen> {
     );
   }
 
+  void updateInformation(String audio) {
+    setState(() => _audio = audio);
+  }
+
+  void moveToSecondPage() async {
+    final audio = await Navigator.push(
+      context,
+      CupertinoPageRoute(
+          fullscreenDialog: true, builder: (context) => AudioSelector()),
+    );
+    updateInformation(audio);
+  }
+
   void _onPlay() => OpenFile.open(_playpath);
 
   void showToast() {
@@ -139,12 +156,14 @@ class _RecordScreenState extends State<RecordScreen> {
   }
 
   Future<void> _onStop() async {
+    assetsAudioPlayer.stop();
     await _controller.stopVideoRecording();
     setState(() => _isRecording = false);
     _videocompress();
   }
 
   Future<void> _onRecord() async {
+    assetsAudioPlayer.open(Audio("assets/$_audio"));
     var directory = await getExternalStorageDirectory();
     print(directory.path + "Data is Stored here Yash");
     _filePath = directory.path + '/${DateTime.now()}.mp4';
@@ -179,16 +198,21 @@ class _RecordScreenState extends State<RecordScreen> {
         ),
         _buildControls(),
         _counter(),
-        RaisedButton.icon(
-            // Within the `FirstRoute` widget
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AudioSelector()),
-              );
-            },
-            icon: Icon(Icons.audiotrack),
-            label: Text('Select Audio'))
+        Builder(builder: (context) {
+          if (_audio == "No Audio selected") {
+            return RaisedButton.icon(
+              onPressed: () {
+                moveToSecondPage();
+              },
+              icon: Icon(Icons.audiotrack),
+              label: Text('Select Audio'),
+            );
+          } else {
+            return Center(
+              child: Text("Audio is Selected $_audio"),
+            );
+          }
+        }),
       ]),
     );
   }

@@ -1,13 +1,17 @@
+import 'dart:io';
+
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:flutter_video_compress/flutter_video_compress.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:surftube/screens/AudioSelctor.dart';
 import 'package:timer_count_down/timer_count_down.dart';
 import 'package:toast/toast.dart';
+import 'package:uuid/uuid.dart';
 
 class RecordScreen extends StatefulWidget {
   @override
@@ -22,9 +26,13 @@ class _RecordScreenState extends State<RecordScreen> {
   String _filePath;
   String _toastPath;
   String _playpath;
+  String _audioPath;
   final _flutterVideoCompress = FlutterVideoCompress();
   String _audio = "No Audio selected";
   AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
+  final FlutterFFmpeg _flutterFFmpeg = new FlutterFFmpeg();
+  var uuid = Uuid();
+  String uncompressedOutput;
 
   @override
   void initState() {
@@ -43,7 +51,7 @@ class _RecordScreenState extends State<RecordScreen> {
   _initCamera(CameraDescription camera) async {
     if (_controller != null) await _controller.dispose();
     _controller =
-        CameraController(camera, ResolutionPreset.high, enableAudio: true);
+        CameraController(camera, ResolutionPreset.high, enableAudio: false);
     _controller.addListener(() => this.setState(() {}));
     _controller.initialize();
   }
@@ -133,44 +141,69 @@ class _RecordScreenState extends State<RecordScreen> {
     updateInformation(audio);
   }
 
-  void _onPlay() => OpenFile.open(_playpath);
+  void _onPlay() => OpenFile.open(uncompressedOutput);
 
-  void showToast() {
-    Toast.show(_toastPath, context, duration: 8, gravity: Toast.CENTER);
-  }
+  // void showToast() {
+  //   Toast.show(_toastPath, context, duration: 8, gravity: Toast.CENTER);
+  // }
 
-  Future<void> _videocompress() async {
-    final info = await _flutterVideoCompress.compressVideo(
-      _filePath,
-      quality:
-          VideoQuality.MediumQuality, // default(VideoQuality.DefaultQuality)
-      deleteOrigin: true, // default(false)
-    );
-    String storagepath = info.path;
-    setState(() {
-      _toastPath =
-          "Your Video is stored at $storagepath You can play this video after This Toast";
-      _playpath = storagepath;
-    });
-    showToast();
-  }
+  // Future<void> _videocompress() async {
+  //   final info = await _flutterVideoCompress.compressVideo(
+  //     uncompressedOutput,
+  //     quality:
+  //         VideoQuality.MediumQuality, // default(VideoQuality.DefaultQuality)
+  //     deleteOrigin: true, // default(false)
+  //   );
+  //   String storagepath = info.path;
+  //   setState(() {
+  //     _toastPath =
+  //         "Your Video is stored at $storagepath You can play this video after This Toast";
+  //     _playpath = storagepath;
+  //   });
+  //   // showToast();
+  // }
 
   Future<void> _onStop() async {
     assetsAudioPlayer.stop();
     await _controller.stopVideoRecording();
     setState(() => _isRecording = false);
-    _videocompress();
+    addExternalAudio();
   }
 
   Future<void> _onRecord() async {
     assetsAudioPlayer.open(Audio("assets/$_audio"));
-    var directory = await getExternalStorageDirectory();
+    var directory = await getTemporaryDirectory();
     print(directory.path + "Data is Stored here Yash");
-    _filePath = directory.path + '/${DateTime.now()}.mp4';
+    var tempuuid = uuid.v4();
+    _filePath = directory.path + '/$tempuuid.mp4';
     _controller.startVideoRecording(_filePath);
     setState(() {
       _isRecording = true;
     });
+  }
+
+  Future<void> addExternalAudio() async {
+    File videofile = File('$_filePath');
+    print('${videofile.path} , this is video path jolly');
+
+    var directory = await getExternalStorageDirectory();
+    _audioPath = directory.path + '/raw.mp3';
+
+    File audiofile = File('$_audioPath');
+    print('${audiofile.path} , this is audio path jolly');
+
+    var outputuuid = uuid.v4();
+    String outputfile = "${directory.path}/$outputuuid.mp4";
+    _flutterFFmpeg
+        .execute(
+            "-i ${videofile.path} -i ${audiofile.path} -c copy -map 0:v:0 -map 1:a:0 -c:a aac -b:a 192k -shortest $outputfile")
+        .then((rc) => print("FFmpeg process exited with rc $rc"));
+
+    setState(() {
+      uncompressedOutput = outputfile;
+    });
+    debugPrint("video audioedit is done $uncompressedOutput");
+    // _videocompress();
   }
 
   IconData _getCameraIcon(CameraLensDirection lensDirection) {

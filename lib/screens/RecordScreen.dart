@@ -5,13 +5,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
-import 'package:flutter_video_compress/flutter_video_compress.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:surftube/screens/AudioSelctor.dart';
 import 'package:timer_count_down/timer_count_down.dart';
 import 'package:toast/toast.dart';
 import 'package:uuid/uuid.dart';
+import 'package:video_compress/video_compress.dart';
 
 class RecordScreen extends StatefulWidget {
   @override
@@ -24,15 +24,14 @@ class _RecordScreenState extends State<RecordScreen> {
   int _cameraIndex;
   bool _isRecording = false;
   String _filePath;
-  String _toastPath;
   String _playpath;
   String _audioPath;
-  final _flutterVideoCompress = FlutterVideoCompress();
   String _audio = "No Audio selected";
   AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
   final FlutterFFmpeg _flutterFFmpeg = new FlutterFFmpeg();
   var uuid = Uuid();
   String uncompressedOutput;
+  String _finalpath;
 
   @override
   void initState() {
@@ -45,6 +44,14 @@ class _RecordScreenState extends State<RecordScreen> {
         _initCamera(_cameras[_cameraIndex]);
       }
     });
+  }
+
+  void showToast() {
+    Toast.show(
+        " Your video is Stored Here $_finalpath You can play video directly with play button in bottom",
+        context,
+        duration: 8,
+        gravity: Toast.CENTER);
   }
 
 //turn this enableaudio flag to false on deployment
@@ -69,12 +76,14 @@ class _RecordScreenState extends State<RecordScreen> {
             _onStop();
           },
         );
-      } else if (_flutterVideoCompress.isCompressing == true) {
-        return Text(
-          "Please wait Your Video is Compressing ! You will be able to Play video after Compressing",
-          style: TextStyle(color: Colors.white),
-        );
-      } else {
+      }
+      //  else if (_flutterVideoCompress.isCompressing == true) {
+      //   return Text(
+      //     "Please wait Your Video is Compressing ! You will be able to Play video after Compressing",
+      //     style: TextStyle(color: Colors.white),
+      //   );
+      // }
+      else {
         return Text(
           "Press start button to start recording $_audio",
           style: TextStyle(color: Colors.white),
@@ -141,7 +150,7 @@ class _RecordScreenState extends State<RecordScreen> {
     updateInformation(audio);
   }
 
-  void _onPlay() => OpenFile.open(uncompressedOutput);
+  void _onPlay() => OpenFile.open(_finalpath);
 
   // void showToast() {
   //   Toast.show(_toastPath, context, duration: 8, gravity: Toast.CENTER);
@@ -162,6 +171,15 @@ class _RecordScreenState extends State<RecordScreen> {
   //   });
   //   // showToast();
   // }
+
+  Future<void> compress() async {
+    final info = await VideoCompress.compressVideo(
+      uncompressedOutput,
+      quality: VideoQuality.MediumQuality,
+      deleteOrigin: true,
+    );
+    _finalpath = info.path;
+  }
 
   Future<void> _onStop() async {
     assetsAudioPlayer.stop();
@@ -184,26 +202,56 @@ class _RecordScreenState extends State<RecordScreen> {
 
   Future<void> addExternalAudio() async {
     File videofile = File('$_filePath');
-    print('${videofile.path} , this is video path jolly');
-
     var directory = await getExternalStorageDirectory();
     _audioPath = directory.path + '/raw.mp3';
-
     File audiofile = File('$_audioPath');
-    print('${audiofile.path} , this is audio path jolly');
-
     var outputuuid = uuid.v4();
     String outputfile = "${directory.path}/$outputuuid.mp4";
     _flutterFFmpeg
         .execute(
             "-i ${videofile.path} -i ${audiofile.path} -c copy -map 0:v:0 -map 1:a:0 -c:a aac -b:a 192k -shortest $outputfile")
         .then((rc) => print("FFmpeg process exited with rc $rc"));
-
     setState(() {
       uncompressedOutput = outputfile;
     });
-    debugPrint("video audioedit is done $uncompressedOutput");
-    // _videocompress();
+    if (uncompressedOutput != null) {
+      showAlert(context);
+    }
+  }
+
+  void showAlert(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: Container(
+          height: 300,
+          width: 300,
+          child: Column(
+            children: [
+              Text("Your Video is recording is Completed"),
+              RaisedButton.icon(
+                onPressed: () {
+                  compress()
+                      .then((value) => setState(() {
+                            _audio = "No Audio selected";
+                          }))
+                      .then((value) =>
+                          Navigator.of(context, rootNavigator: true).pop())
+                      .then((value) => showToast());
+                },
+                icon: Icon(Icons.save),
+                label: Text("Compress and Save"),
+              ),
+              RaisedButton.icon(
+                  onPressed: () {},
+                  icon: Icon(Icons.do_not_disturb),
+                  label: Text('Dont Save')),
+              Text('Please wait After Clicking Save !')
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   IconData _getCameraIcon(CameraLensDirection lensDirection) {

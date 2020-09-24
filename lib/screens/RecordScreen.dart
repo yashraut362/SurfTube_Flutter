@@ -24,14 +24,13 @@ class _RecordScreenState extends State<RecordScreen> {
   int _cameraIndex;
   bool _isRecording = false;
   String _filePath;
-  String _playpath;
   String _audioPath;
-  String _audio = "No Audio selected";
+  String uncompressedOutput;
+  String _finalpath;
+  String _audio = "";
   AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
   final FlutterFFmpeg _flutterFFmpeg = new FlutterFFmpeg();
   var uuid = Uuid();
-  String uncompressedOutput;
-  String _finalpath;
 
   @override
   void initState() {
@@ -64,32 +63,33 @@ class _RecordScreenState extends State<RecordScreen> {
   }
 
   Widget _counter() {
-    return Center(child: Builder(builder: (context) {
-      if (_isRecording == true) {
-        return Countdown(
-          seconds: 30,
-          build: (BuildContext context, double time) => Text(
-            time.toString(),
-            style: TextStyle(color: Colors.white),
-          ),
-          onFinished: () {
-            _onStop();
-          },
-        );
-      }
-      //  else if (_flutterVideoCompress.isCompressing == true) {
-      //   return Text(
-      //     "Please wait Your Video is Compressing ! You will be able to Play video after Compressing",
-      //     style: TextStyle(color: Colors.white),
-      //   );
-      // }
-      else {
-        return Text(
-          "Press start button to start recording $_audio",
-          style: TextStyle(color: Colors.white),
-        );
-      }
-    }));
+    return Center(
+      child: Builder(
+        builder: (context) {
+          if (_isRecording == true) {
+            return Countdown(
+              seconds: 30,
+              build: (BuildContext context, double time) => Text(
+                time.toString(),
+                style: TextStyle(color: Colors.white),
+              ),
+              onFinished: () {
+                _onStop();
+              },
+            );
+          } else {
+            return Column(
+              children: [
+                Text(
+                  "Press start button to start recording ",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ],
+            );
+          }
+        },
+      ),
+    );
   }
 
   Widget _buildCamera() {
@@ -152,26 +152,6 @@ class _RecordScreenState extends State<RecordScreen> {
 
   void _onPlay() => OpenFile.open(_finalpath);
 
-  // void showToast() {
-  //   Toast.show(_toastPath, context, duration: 8, gravity: Toast.CENTER);
-  // }
-
-  // Future<void> _videocompress() async {
-  //   final info = await _flutterVideoCompress.compressVideo(
-  //     uncompressedOutput,
-  //     quality:
-  //         VideoQuality.MediumQuality, // default(VideoQuality.DefaultQuality)
-  //     deleteOrigin: true, // default(false)
-  //   );
-  //   String storagepath = info.path;
-  //   setState(() {
-  //     _toastPath =
-  //         "Your Video is stored at $storagepath You can play this video after This Toast";
-  //     _playpath = storagepath;
-  //   });
-  //   // showToast();
-  // }
-
   Future<void> compress() async {
     final info = await VideoCompress.compressVideo(
       uncompressedOutput,
@@ -233,7 +213,7 @@ class _RecordScreenState extends State<RecordScreen> {
                 onPressed: () {
                   compress()
                       .then((value) => setState(() {
-                            _audio = "No Audio selected";
+                            _audio = "";
                           }))
                       .then((value) =>
                           Navigator.of(context, rootNavigator: true).pop())
@@ -280,7 +260,7 @@ class _RecordScreenState extends State<RecordScreen> {
         _buildControls(),
         _counter(),
         Builder(builder: (context) {
-          if (_audio == "No Audio selected") {
+          if (_audio == null) {
             return RaisedButton.icon(
               onPressed: () {
                 moveToSecondPage();

@@ -40,7 +40,8 @@ class _AudioSelectorState extends State<AudioSelector> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("AudioSelector"),
+        backgroundColor: Colors.black,
+        title: Center(child: Text("AudioSelector")),
       ),
       body: Column(
         children: [
@@ -89,17 +90,15 @@ class _AudioSelectorState extends State<AudioSelector> {
               subtitle: Text('Tap to select me'),
             ),
           ),
+          SizedBox(
+            height: 40,
+          ),
           Center(
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 40,
-                ),
-                Text(
-                    "Please wait After selecting You will be automatically redirected"),
-              ],
+            child: Text(
+              "Please wait After selecting You will be automatically redirected",
+              style: TextStyle(fontSize: 20.0),
             ),
-          )
+          ),
         ],
       ),
     );

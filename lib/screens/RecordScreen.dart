@@ -207,6 +207,7 @@ class _RecordScreenState extends State<RecordScreen> {
           height: 300,
           width: 300,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Text("Your Video is recording is Completed"),
               RaisedButton.icon(
@@ -223,9 +224,12 @@ class _RecordScreenState extends State<RecordScreen> {
                 label: Text("Compress and Save"),
               ),
               RaisedButton.icon(
-                  onPressed: () {},
-                  icon: Icon(Icons.do_not_disturb),
-                  label: Text('Dont Save')),
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
+                icon: Icon(Icons.do_not_disturb),
+                label: Text('Dont Save/ Retake'),
+              ),
               Text('Please wait After Clicking Save !')
             ],
           ),
@@ -260,7 +264,7 @@ class _RecordScreenState extends State<RecordScreen> {
         _buildControls(),
         _counter(),
         Builder(builder: (context) {
-          if (_audio == null) {
+          if (_audio == "") {
             return RaisedButton.icon(
               onPressed: () {
                 moveToSecondPage();
@@ -268,10 +272,26 @@ class _RecordScreenState extends State<RecordScreen> {
               icon: Icon(Icons.audiotrack),
               label: Text('Select Audio'),
             );
-          } else {
-            return Center(
-              child: Text("Audio is Selected $_audio"),
+          } else if (_audio != "") {
+            return Column(
+              children: [
+                new Center(
+                  child: Text(
+                    "Audio is Selected $_audio",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                new RaisedButton.icon(
+                  onPressed: () {
+                    moveToSecondPage();
+                  },
+                  icon: Icon(Icons.audiotrack),
+                  label: Text('Change Audio'),
+                ),
+              ],
             );
+          } else {
+            return SizedBox();
           }
         }),
       ]),

@@ -12,6 +12,7 @@ class _AudioSelectorState extends State<AudioSelector> {
   String downloadAudio = "";
   bool downloading = false;
   var progresstring = "";
+  bool showLoading = false;
 
   Future<void> download() async {
     CircularProgressIndicator();
@@ -32,6 +33,9 @@ class _AudioSelectorState extends State<AudioSelector> {
       progresstring = "completed";
     });
     if (progresstring == "completed") {
+      setState(() {
+        showLoading = false;
+      });
       Navigator.pop(context, selectedaudio);
     }
   }
@@ -41,6 +45,7 @@ class _AudioSelectorState extends State<AudioSelector> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
+        automaticallyImplyLeading: false,
         title: Center(child: Text("AudioSelector")),
       ),
       body: Column(
@@ -48,6 +53,7 @@ class _AudioSelectorState extends State<AudioSelector> {
           InkWell(
             onTap: () {
               setState(() {
+                showLoading = true;
                 selectedaudio = "sample1.mp3";
                 downloadAudio =
                     "https://firebasestorage.googleapis.com/v0/b/dcverse-c639f.appspot.com/o/sample1.mp3?alt=media&token=c7e084bb-7eff-4c97-9771-877b550278fa";
@@ -63,6 +69,7 @@ class _AudioSelectorState extends State<AudioSelector> {
           InkWell(
             onTap: () {
               setState(() {
+                showLoading = true;
                 selectedaudio = "sample2.mp3";
                 downloadAudio =
                     "https://firebasestorage.googleapis.com/v0/b/dcverse-c639f.appspot.com/o/sample2.mp3?alt=media&token=7872a7fc-320b-40ab-8def-303751455e96";
@@ -78,6 +85,7 @@ class _AudioSelectorState extends State<AudioSelector> {
           InkWell(
             onTap: () {
               setState(() {
+                showLoading = true;
                 selectedaudio = "sample3.mp3";
                 downloadAudio =
                     "https://firebasestorage.googleapis.com/v0/b/dcverse-c639f.appspot.com/o/sample3.mp3?alt=media&token=477cc39f-6ae2-4239-9ae7-f2874eeaccff";
@@ -91,14 +99,39 @@ class _AudioSelectorState extends State<AudioSelector> {
             ),
           ),
           SizedBox(
-            height: 40,
+            height: 60,
           ),
-          Center(
-            child: Text(
-              "Please wait After selecting You will be automatically redirected",
-              style: TextStyle(fontSize: 20.0),
-            ),
-          ),
+          Builder(
+            builder: (context) {
+              if (showLoading == true) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      backgroundColor: Colors.grey,
+                      valueColor:
+                          new AlwaysStoppedAnimation<Color>(Colors.black),
+                    ),
+                    Center(
+                      child: Text(
+                        "Please wait ",
+                        style: TextStyle(fontSize: 20.0),
+                      ),
+                    ),
+                    Center(
+                      child: Text(
+                        " You will be automatically redirected",
+                        style: TextStyle(fontSize: 20.0),
+                      ),
+                    ),
+                  ],
+                );
+              } else {
+                return SizedBox(height: 1);
+              }
+            },
+          )
         ],
       ),
     );

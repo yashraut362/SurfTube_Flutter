@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:permission_handler/permission_handler.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +30,7 @@ class _RecordScreenState extends State<RecordScreen> {
   String _audio = "";
   AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
   final FlutterFFmpeg _flutterFFmpeg = new FlutterFFmpeg();
+
   var uuid = Uuid();
 
   @override
@@ -194,8 +195,17 @@ class _RecordScreenState extends State<RecordScreen> {
     setState(() {
       uncompressedOutput = outputfile;
     });
+    final status = await Permission.storage.request();
     if (uncompressedOutput != null) {
-      showAlert(context);
+      if (status.isGranted) {
+        showAlert(context);
+      } else {
+        Toast.show(
+            "Sorry You need to provide permission for Further operations",
+            context,
+            duration: 5,
+            gravity: Toast.TOP);
+      }
     }
   }
 

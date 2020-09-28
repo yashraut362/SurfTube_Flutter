@@ -101,6 +101,11 @@ class _AudioSelectorState extends State<AudioSelector> {
           SizedBox(
             height: 60,
           ),
+          Text(' Internet Connection is Required',
+              style: TextStyle(fontSize: 20.0)),
+          SizedBox(
+            height: 10,
+          ),
           Builder(
             builder: (context) {
               if (showLoading == true) {
@@ -131,7 +136,7 @@ class _AudioSelectorState extends State<AudioSelector> {
                 return SizedBox(height: 1);
               }
             },
-          )
+          ),
         ],
       ),
     );
